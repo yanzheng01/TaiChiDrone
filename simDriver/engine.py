@@ -5,7 +5,7 @@ from simDriver.utils import project_points, find_closest_points
 
 def update_drone_motion(drone_pos, drone_vel, drone_dir, frame_count, acceleration_interval, 
                        moment_of_inertia, angular_acceleration, angular_velocity, 
-                       latest_acceleration_dir, drone_acceleration=None):
+                       latest_acceleration_dir, drone_acceleration=None, points=None, num_closest_points=5):
     """
     更新无人机运动状态
     
@@ -20,9 +20,12 @@ def update_drone_motion(drone_pos, drone_vel, drone_dir, frame_count, accelerati
     - angular_velocity: 角速度
     - latest_acceleration_dir: 最新加速度方向
     - drone_acceleration: 无人机加速度大小，如果为None则随机生成
+    - points: 3D点云数据，用于计算最近点
+    - num_closest_points: 最近点的数量
     
     返回:
     - 更新后的无人机状态元组
+    - 最近点的索引和距离
     """
     # 控制无人机移动
     drone_pos += drone_vel
@@ -95,8 +98,15 @@ def update_drone_motion(drone_pos, drone_vel, drone_dir, frame_count, accelerati
     # 归一化朝向向量
     drone_dir = drone_dir / np.linalg.norm(drone_dir)
     
+    # 查找最近的点
+    closest_indices = None
+    closest_distances = None
+    if points is not None:
+        closest_indices, closest_distances = find_closest_points(drone_pos, points, num_closest_points)
+    
     return (drone_pos, drone_vel, drone_dir, frame_count, angular_acceleration, 
-            angular_velocity, latest_acceleration_dir, drone_acceleration)
+            angular_velocity, latest_acceleration_dir, drone_acceleration, 
+            closest_indices, closest_distances)
 
 def render_windows(main_gui, camera_gui, points, point_sizes, drone_pos, drone_dir,
                   rotation_angle_y, rotation_angle_x, camera_distance, main_window_res, 

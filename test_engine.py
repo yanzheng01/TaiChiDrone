@@ -80,14 +80,17 @@ while main_gui.running and camera_gui.running:
         rotation_angle_x -= 0.05
     
     # 生成新的加速度值
-    new_drone_acceleration = np.random.uniform(0.0001*10, 0.001*10)
+    new_drone_acceleration = np.random.uniform(0.0001, 0.001)
     
     # 更新无人机运动状态
     (drone_pos, drone_vel, drone_dir, frame_count, angular_acceleration, 
-     angular_velocity, latest_acceleration_dir, drone_acceleration) = update_drone_motion(
+     angular_velocity, latest_acceleration_dir, drone_acceleration, 
+     closest_indices, closest_distances) = update_drone_motion(
         drone_pos, drone_vel, drone_dir, frame_count, acceleration_interval,
         moment_of_inertia, angular_acceleration, angular_velocity,
-        latest_acceleration_dir, new_drone_acceleration)
+        latest_acceleration_dir, new_drone_acceleration, points, num_closest_points)
+    print(f"Drone Position: {drone_pos}, Velocity: {drone_vel}, Direction: {drone_dir}")
+    print(f"Closest Points Indices: {closest_indices}, Distances: {closest_distances}")
     
     # 渲染窗口
     render_windows(main_gui, camera_gui, points, point_sizes, drone_pos, drone_dir,
