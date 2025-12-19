@@ -15,7 +15,7 @@ main_gui = ti.GUI("3D Space with Drone", res=main_window_res, background_color=0
 camera_gui = ti.GUI("Drone Camera View", res=camera_window_res, background_color=0x000000)
 
 # 定义3D点的数量
-num_points = 1000
+num_points = 10000
 num_closest_points = 5  # 要查找的最近点数量
 
 # 创建Taichi字段来存储3D点
@@ -30,7 +30,7 @@ latest_acceleration_dir = ti.Vector.field(3, dtype=ti.f32, shape=())
 
 # 物理参数
 drone_acceleration = ti.field(dtype=ti.f32, shape=())
-moment_of_inertia = ti.field(dtype=ti.f32, shape=())
+moment_of_inertia = ti.field(dtype=ti.f32, shape=()) # 无人机绕其质心旋转的转动惯量
 angular_acceleration = ti.Vector.field(3, dtype=ti.f32, shape=())
 angular_velocity = ti.Vector.field(3, dtype=ti.f32, shape=())
 
@@ -51,8 +51,8 @@ def init_simulation():
     # 初始化点云
     for i in range(num_points):
         for j in ti.static(range(3)):
-            points[i][j] = ti.random() * 2.0 - 1.0  # 归一化到[-1, 1]区间
-        point_sizes[i] = ti.random() * 4.0 + 1.0  # 点大小范围在[1.0, 5.0]之间
+            points[i][j] = (ti.random() * 2.0 - 1.0) * 3  # 归一化到[-1, 1]区间
+        point_sizes[i] = ti.random() * 1.0 + 1.0  # 点大小范围在[1.0, 5.0]之间
     
     # 初始化无人机参数
     drone_pos[None] = ti.Vector([0.0, 0.0, -2.0])  # 初始位置
@@ -61,7 +61,7 @@ def init_simulation():
     latest_acceleration_dir[None] = ti.Vector([0.0, 0.0, 1.0])
     
     # 初始化物理参数
-    drone_acceleration[None] = 0.0005  # 初始加速度大小
+    drone_acceleration[None] = 0.0000  # 初始加速度大小
     moment_of_inertia[None] = 50.0     # 转动惯量
     angular_acceleration[None] = ti.Vector([0.0, 0.0, 0.0])
     angular_velocity[None] = ti.Vector([0.0, 0.0, 0.0])
